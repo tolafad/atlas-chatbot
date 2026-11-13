@@ -1,0 +1,39 @@
+# Secrets and local config
+.env
+.env.*
+!.env.example
+.aws/
+.claude/settings.local.json
+
+# Local data (SQLite chat history)
+data/
+*.db
+*.db-*
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+logs/
+
+# Key / credential files
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+*accessKeys*.csv
+client_secret*.json
+service-account*.json
+*.kdbx
+
+# Build / deps / OS / editor
+node_modules/
+dist/
+build/
+.DS_Store
+.idea/
+.vscode/

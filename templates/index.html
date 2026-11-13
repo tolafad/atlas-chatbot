@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas · AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar" id="sidebar" aria-label="Chat history">
+      <div class="sidebar-top">
+        <a class="brand" href="/" id="brandLink">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2 3 21h4.2l1.6-3.6h6.4l1.6 3.6H21L12 2Zm-1.8 12.2L12 9.9l1.8 4.3h-3.6Z"/></svg>
+          </span>
+          <span class="brand-name">Atlas</span>
+        </a>
+        <button class="icon-btn" id="collapseBtn" type="button" aria-label="Close sidebar" title="Close sidebar">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
+        </button>
+      </div>
+
+      <button class="new-chat" id="newChatBtn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        New chat
+        <kbd>Ctrl ⇧ O</kbd>
+      </button>
+
+      <label class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="searchInput" type="search" placeholder="Search chats" aria-label="Search chats">
+      </label>
+
+      <nav class="history" id="history">
+        <p class="history-empty" id="historyEmpty">No conversations yet.<br>Start a new chat to see it here.</p>
+      </nav>
+
+      <section class="api-panel" id="apiPanel">
+        <button class="api-toggle" id="apiToggle" type="button" aria-expanded="false" aria-controls="apiBody">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5"/></svg>
+          API
+          <span class="api-count" id="apiCount">0</span>
+          <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>
+        </button>
+        <div class="api-body" id="apiBody" hidden>
+          <div class="api-tabs" role="tablist">
+            <button type="button" role="tab" class="active" data-tab="endpoints" aria-selected="true">Endpoints</button>
+            <button type="button" role="tab" data-tab="activity" aria-selected="false">Activity <span class="api-live" id="apiLive"></span></button>
+          </div>
+          <ul class="api-list" id="apiEndpoints"></ul>
+          <ul class="api-list" id="apiActivity" hidden>
+            <li class="api-empty">No calls yet.</li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="sidebar-footer">
+        <div class="model-card">
+          <span class="status-dot" id="statusDot"></span>
+          <div>
+            <p class="model-label">Amazon Bedrock</p>
+            <p class="model-id" title="{{ model_id }}">{{ model_id }}</p>
+          </div>
+        </div>
+        <button class="footer-link" id="clearAllBtn" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
+          Delete all chats
+        </button>
+        <div class="plan-card" id="planCard">
+          <div class="plan-row">
+            <span class="plan-name" id="planName">Free plan</span>
+            <span class="plan-count" id="planCount"></span>
+          </div>
+          <div class="meter" id="planMeter" role="progressbar" aria-label="Free messages used" aria-valuemin="0">
+            <div class="meter-fill" id="meterFill"></div>
+          </div>
+          <p class="plan-note" id="planNote"></p>
+          <button class="upgrade-btn" id="sidebarUpgradeBtn" type="button" disabled aria-disabled="true"
+                  aria-describedby="upgradeSoon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7Z"/></svg>
+            Upgrade to Pro
+            <span class="soon-badge">Soon</span>
+          </button>
+        </div>
+        <div class="account">
+          <span class="account-avatar" aria-hidden="true">{{ user.email[0] }}</span>
+          <span class="account-email" title="{{ user.email }}">{{ user.email }}</span>
+          <button class="icon-btn" id="signOutBtn" type="button" aria-label="Sign out" title="Sign out">
+            <svg viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim"></div>
+
+    <!-- ===== Main ===== -->
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn open-sidebar" id="openSidebarBtn" type="button" aria-label="Open sidebar" title="Open sidebar">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
+        </button>
+        <button class="icon-btn open-sidebar" id="topNewChatBtn" type="button" aria-label="New chat" title="New chat">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+        <h1 class="topbar-title" id="chatTitle">Atlas</h1>
+        <span class="model-chip" title="{{ model_id }}">{{ model_id.split('.')[-1] if '.' in model_id else model_id }}</span>
+      </header>
+
+      <section class="chat" id="chat" aria-live="polite">
+        <div class="welcome" id="welcome">
+          <div class="welcome-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2 3 21h4.2l1.6-3.6h6.4l1.6 3.6H21L12 2Zm-1.8 12.2L12 9.9l1.8 4.3h-3.6Z"/></svg>
+          </div>
+          <h2>How can I help you today?</h2>
+          <div class="suggestions">
+            <button class="suggestion" type="button" data-prompt="Explain how large language models work in simple terms.">
+              <strong>Explain a concept</strong><span>How do large language models work?</span>
+            </button>
+            <button class="suggestion" type="button" data-prompt="Write a professional email asking my manager for a day off next Friday.">
+              <strong>Draft an email</strong><span>Request a day off, professionally</span>
+            </button>
+            <button class="suggestion" type="button" data-prompt="Write a Python function that checks whether a string is a palindrome, with tests.">
+              <strong>Write code</strong><span>Palindrome checker in Python</span>
+            </button>
+            <button class="suggestion" type="button" data-prompt="Give me a 3-day itinerary for a first visit to Paris.">
+              <strong>Plan a trip</strong><span>3 days in Paris</span>
+            </button>
+          </div>
+        </div>
+        <div class="messages" id="messages"></div>
+      </section>
+
+      <footer class="composer-wrap">
+        <div class="paywall" id="paywall" role="region" aria-labelledby="paywallTitle" hidden>
+          <div class="paywall-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7Z"/></svg>
+          </div>
+          <div class="paywall-text">
+            <h3 id="paywallTitle">You've used your <span id="paywallLimit">10</span> free messages</h3>
+            <p>Upgrade to a paid account to keep chatting with Atlas. Your existing chats stay available to read.</p>
+          </div>
+          <div class="paywall-action">
+            <button class="upgrade-btn upgrade-btn-lg" type="button" disabled aria-disabled="true" aria-describedby="upgradeSoon">
+              Upgrade to Pro
+            </button>
+            <small id="upgradeSoon">Payments are coming soon.</small>
+          </div>
+        </div>
+        <form class="composer" id="composer">
+          <textarea id="input" rows="1" placeholder="Message Atlas…" aria-label="Message" maxlength="20000"></textarea>
+          <button class="send-btn" id="sendBtn" type="submit" aria-label="Send message" disabled>
+            <svg class="icon-send" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+            <svg class="icon-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>
+          </button>
+        </form>
+        <p class="disclaimer">Atlas can make mistakes. Verify important information.</p>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Conversation item menu -->
+  <div class="menu" id="itemMenu" role="menu" hidden>
+    <button type="button" role="menuitem" data-action="rename">
+      <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Rename
+    </button>
+    <button type="button" role="menuitem" data-action="delete" class="danger">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>Delete
+    </button>
+  </div>
+
+  <!-- Confirm dialog -->
+  <div class="modal-backdrop" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle">Delete chat?</h3>
+      <p id="modalBody">This will delete the conversation.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" id="modalCancel">Cancel</button>
+        <button class="btn btn-danger" type="button" id="modalConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- API endpoint / call details -->
+  <div class="modal-backdrop" id="apiModal" hidden>
+    <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="apiModalTitle">
+      <div class="api-modal-head">
+        <h3 id="apiModalTitle"></h3>
+        <button class="icon-btn" type="button" id="apiModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div id="apiModalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script id="quotaData" type="application/json">{{ quota | tojson }}</script>
+  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>

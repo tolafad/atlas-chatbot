@@ -1,0 +1,19 @@
+# Never send secrets or local state into the image
+.env
+.env.*
+.aws/
+data/
+*.db
+*.db-*
+
+# Local tooling
+.venv/
+__pycache__/
+*.pyc
+.claude/
+.git/
+.gitignore
+test_bedrock.py
+deploy/
+Dockerfile
+.dockerignore

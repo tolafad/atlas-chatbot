@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ 'Create account' if mode == 'signup' else 'Sign in' }} · Atlas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-body">
+  <main class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 2 3 21h4.2l1.6-3.6h6.4l1.6 3.6H21L12 2Zm-1.8 12.2L12 9.9l1.8 4.3h-3.6Z"/></svg>
+        </span>
+        <span class="brand-name">Atlas</span>
+      </div>
+
+      {% if mode == 'signup' %}
+        <h1>Create your account</h1>
+        <p class="auth-sub">Your chats are private to your account.</p>
+      {% else %}
+        <h1>Welcome back</h1>
+        <p class="auth-sub">Sign in to continue to your chats.</p>
+      {% endif %}
+
+      <form id="authForm" data-mode="{{ mode }}" novalidate>
+        <div class="auth-error" id="authError" role="alert" hidden></div>
+
+        <label class="field">
+          <span>Email</span>
+          <input id="email" type="email" name="email" autocomplete="email" required maxlength="254" autofocus>
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <span class="password-wrap">
+            <input id="password" type="password" name="password" required minlength="8" maxlength="128"
+                   autocomplete="{{ 'new-password' if mode == 'signup' else 'current-password' }}">
+            <button type="button" class="reveal" data-reveal="password" aria-label="Show password">Show</button>
+          </span>
+          {% if mode == 'signup' %}<small class="hint">At least 8 characters.</small>{% endif %}
+        </label>
+
+        {% if mode == 'signup' %}
+        <label class="field">
+          <span>Confirm password</span>
+          <span class="password-wrap">
+            <input id="confirm" type="password" name="confirm" required minlength="8" maxlength="128" autocomplete="new-password">
+            <button type="button" class="reveal" data-reveal="confirm" aria-label="Show password">Show</button>
+          </span>
+        </label>
+        {% endif %}
+
+        <button class="auth-submit" id="submitBtn" type="submit">
+          <span class="label">{{ 'Create account' if mode == 'signup' else 'Sign in' }}</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        {% if mode == 'signup' %}
+          Already have an account? <a href="{{ url_for('signin_page') }}" data-keep-next>Sign in</a>
+        {% elif allow_signup %}
+          New to Atlas? <a href="{{ url_for('signup_page') }}" data-keep-next>Create an account</a>
+        {% endif %}
+      </p>
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+</html>

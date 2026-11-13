@@ -1,0 +1,38 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "InvokeGlobalInferenceProfile",
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
+      "Resource": "arn:aws:bedrock:us-east-1:*:inference-profile/global.anthropic.claude-opus-4-6-v1",
+      "Condition": {
+        "StringEquals": { "aws:RequestedRegion": "us-east-1" }
+      }
+    },
+    {
+      "Sid": "InvokeModelInSourceRegionViaProfile",
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
+      "Resource": "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-opus-4-6-v1",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "us-east-1",
+          "bedrock:InferenceProfileArn": "arn:aws:bedrock:us-east-1:*:inference-profile/global.anthropic.claude-opus-4-6-v1"
+        }
+      }
+    },
+    {
+      "Sid": "InvokeModelGloballyViaProfile",
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
+      "Resource": "arn:aws:bedrock:::foundation-model/anthropic.claude-opus-4-6-v1",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "unspecified",
+          "bedrock:InferenceProfileArn": "arn:aws:bedrock:us-east-1:*:inference-profile/global.anthropic.claude-opus-4-6-v1"
+        }
+      }
+    }
+  ]
+}
