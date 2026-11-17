@@ -218,8 +218,46 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 
 /* ===== Welcome ===== */
 .welcome { max-width: 720px; margin: 0 auto; padding: 12vh 24px 24px; text-align: center; }
-.welcome-mark { width: 52px; height: 52px; margin: 0 auto 18px; border-radius: 15px; box-shadow: var(--shadow); }
-.welcome-mark svg { width: 28px; height: 28px; }
+
+/* Animated robot mascot on the welcome screen */
+.bot { width: 112px; margin: 0 auto 14px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.bot svg { display: block; width: 100%; height: auto; overflow: visible; stroke: none; }
+.bot * { transform-box: fill-box; }
+.bot-float { transform-origin: 50% 100%; animation: bot-float 3.4s ease-in-out infinite; }
+.bot-shadow { fill: var(--text); opacity: .1; transform-origin: center; animation: bot-shadow 3.4s ease-in-out infinite; }
+.bot-antenna { fill: #f472b6; animation: bot-glow 1.8s ease-in-out infinite; }
+.bot-eyes { transition: transform .18s ease-out; }
+.bot-eye { fill: #67e8f9; transform-origin: center; animation: bot-blink 5s infinite; }
+.bot-mouth { fill: none; stroke: #67e8f9; stroke-width: 3; stroke-linecap: round; }
+.bot-heart { fill: #67e8f9; transform-origin: center; animation: bot-glow 2.4s ease-in-out infinite; }
+.bot-arm { transform-origin: 50% 8%; }
+.bot-arm-right { animation: bot-wave 7s ease-in-out .6s infinite; }
+.bot-arm-left { animation: bot-sway 3.4s ease-in-out infinite; }
+.bot.hop .bot-float { animation: bot-hop .7s cubic-bezier(.3, 1.6, .5, 1); }
+.bot.hop .bot-mouth { d: path("M51 57 Q60 67 69 57"); }
+
+@keyframes bot-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes bot-shadow { 0%, 100% { transform: scaleX(1); opacity: .12; } 50% { transform: scaleX(.8); opacity: .06; } }
+@keyframes bot-glow { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+@keyframes bot-blink { 0%, 90%, 96%, 100% { transform: scaleY(1); } 93% { transform: scaleY(.1); } }
+@keyframes bot-sway { 0%, 100% { transform: rotate(4deg); } 50% { transform: rotate(-4deg); } }
+@keyframes bot-wave {
+  0%, 30%, 100% { transform: rotate(0); }
+  6% { transform: rotate(-150deg); }
+  10% { transform: rotate(-120deg); }
+  14% { transform: rotate(-155deg); }
+  18% { transform: rotate(-120deg); }
+  22% { transform: rotate(-150deg); }
+}
+@keyframes bot-hop {
+  0% { transform: translateY(0) rotate(0); }
+  40% { transform: translateY(-22px) rotate(-6deg); }
+  70% { transform: translateY(0) rotate(4deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bot *, .bot.hop * { animation: none !important; transition: none !important; }
+}
 .welcome h2 { margin: 0 0 32px; font-size: 28px; font-weight: 600; letter-spacing: -.02em; }
 .suggestions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; text-align: left; }
 .suggestion { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); transition: background .15s, border-color .15s; }

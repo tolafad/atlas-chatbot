@@ -803,6 +803,36 @@
 
   window.addEventListener("popstate", routeFromUrl);
 
+  // ======================= Robot mascot =======================
+  // Eyes follow the pointer while the welcome screen is visible; a click makes it hop.
+  const bot = $("bot");
+  if (bot) {
+    const eyes = bot.querySelector(".bot-eyes");
+    let frame = 0;
+    const look = (x, y) => { eyes.style.transform = `translate(${x}px, ${y}px)`; };
+    document.addEventListener("pointermove", (e) => {
+      if (frame || els.welcome.hidden) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const r = bot.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height * 0.4);
+        const dist = Math.hypot(dx, dy) || 1;
+        const reach = Math.min(dist / 120, 1);
+        look((dx / dist) * 4 * reach, (dy / dist) * 3 * reach);
+      });
+    });
+    document.addEventListener("pointerleave", () => look(0, 0));
+    bot.addEventListener("click", () => {
+      bot.classList.remove("hop");
+      void bot.offsetWidth; // restart the animation on repeated clicks
+      bot.classList.add("hop");
+    });
+    bot.addEventListener("animationend", (e) => {
+      if (e.animationName === "bot-hop") bot.classList.remove("hop");
+    });
+  }
+
   // ======================= Init =======================
   try { if (localStorage.getItem("atlas.sidebarCollapsed") === "1" && !mobile.matches) els.app.classList.add("collapsed"); } catch { /* ignore */ }
   try { setApiPanelOpen(localStorage.getItem("atlas.apiPanelOpen") === "1"); } catch { setApiPanelOpen(false); }
