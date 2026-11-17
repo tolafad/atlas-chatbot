@@ -17,3 +17,4 @@ test_bedrock.py
 deploy/
 Dockerfile
 .dockerignore
+.github/

@@ -1,0 +1,41 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EcrLogin",
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": "*"
+    },
+    {
+      "Sid": "EcrPushAtlasOnly",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload",
+        "ecr:PutImage",
+        "ecr:DescribeImages"
+      ],
+      "Resource": "arn:aws:ecr:eu-west-2:881490130721:repository/atlas-chatbot"
+    },
+    {
+      "Sid": "RunDeployScriptOnAtlasInstanceOnly",
+      "Effect": "Allow",
+      "Action": "ssm:SendCommand",
+      "Resource": [
+        "arn:aws:ec2:eu-west-2:881490130721:instance/i-052d2c4204517077f",
+        "arn:aws:ssm:eu-west-2::document/AWS-RunShellScript"
+      ]
+    },
+    {
+      "Sid": "ReadCommandResults",
+      "Effect": "Allow",
+      "Action": ["ssm:GetCommandInvocation", "ssm:ListCommandInvocations"],
+      "Resource": "*"
+    }
+  ]
+}

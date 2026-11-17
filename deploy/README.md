@@ -162,6 +162,39 @@ curl -I http://<instance-public-ip>/                  # 302 to /signin when sign
 
 On the instance, `sudo docker ps` should show the new version and `(healthy)` after about 10 seconds.
 
+## 6. Automatic deployment with GitHub Actions
+
+`.github/workflows/deploy.yml` runs on every push to `main` (pushes that only change `*.md`
+files are skipped) and on every `v*` tag:
+
+1. **Test**: installs the locked dependencies, checks syntax, and runs a smoke test of sign-up,
+   sign-in, sign-out and the 10-message free limit, with Bedrock stubbed out (no AWS calls, no cost).
+2. **Build & push**: builds the `linux/amd64` image and pushes it to ECR as `sha-<commit>` and `latest`
+   (a tag `v1.3.0` also adds `1.3.0`).
+3. **Deploy**: sends `deploy/remote-deploy.sh` to the instance with SSM Run Command. It swaps the
+   container (keeping the `atlas-data` volume), waits for the health check, checks ports 80 and 8000,
+   and **rolls back automatically** to the previous image if the new one is unhealthy.
+
+The app's own health is checked from inside the instance: the security group only lets your
+IP in, so GitHub's runners can't reach it from outside, and the workflow doesn't open it up.
+
+### One-time setup
+
+```bash
+AWS_PROFILE=class bash deploy/setup-github-deploy.sh
+```
+
+It creates the IAM role `atlas-chatbot-github-deploy` (permissions in `deploy/github-deploy-policy.json`:
+push to the `atlas-chatbot` ECR repo and run commands on this one instance, nothing else). The role
+trusts only GitHub's OIDC tokens for this repo's `production` environment
+(`deploy/github-oidc-trust-policy.json`), and the environment only accepts runs from `main` and `v*`
+tags, so forks and pull requests can't deploy. No AWS keys are stored in GitHub.
+
+### Redeploy or roll back by hand
+
+GitHub > **Actions** > **Deploy to EC2** > **Run workflow**, and enter an existing image tag
+(for example `sha-1a2b3c4` or `1.2.0`). Leave it empty to build and deploy the current `main`.
+
 ---
 
 ## Running the image on your own machine
